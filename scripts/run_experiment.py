@@ -24,6 +24,7 @@ def _build_parser () -> argparse.ArgumentParser:
     parser.add_argument("--measurement-steps", type=int, help="Measurement steps")
     parser.add_argument("--replications", type=int, help="Number of replications")
     parser.add_argument("--seed-base", type=int, help="Seed base")
+    parser.add_argument("--p-turn", type=float, help="Turning probability (0 to 1)")
     parser.add_argument("--output-dir", type=str, help="Output directory")
     parser.add_argument("--no-plots", action="store_true", help="Skip plotting")
     return parser
@@ -47,6 +48,8 @@ def main () -> None:
         config.replications = args.replications
     if args.seed_base is not None:
         config.seed_base = args.seed_base
+    if args.p_turn is not None:
+        config.p_turn = args.p_turn
     if args.output_dir is not None:
         config.output_dir = args.output_dir
 

@@ -295,3 +295,5 @@ __marimo__/
 planning/
 .test_tmp/
 tests/tmp_work/
+results/
+tests/tests/
