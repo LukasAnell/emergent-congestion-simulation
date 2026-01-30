@@ -9,7 +9,7 @@ ROOT = Path(__file__).resolve().parents[1]
 if str(ROOT) not in sys.path:
     sys.path.insert(0, str(ROOT))
 
-from src.config import load_config, save_config  # noqa: E402
+from src.config import load_config  # noqa: E402
 from src.experiment import run_density_sweep  # noqa: E402
 from src.plotting import plot_summary  # noqa: E402
 from src.utils import ensure_dir, parse_density_list  # noqa: E402
@@ -54,7 +54,6 @@ def main () -> None:
         config.output_dir = args.output_dir
 
     output_dir = ensure_dir(config.output_dir)
-    save_config(Path(output_dir) / "config_used.json", config)
 
     summary_df = run_density_sweep(config)
 

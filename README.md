@@ -35,6 +35,11 @@ python scripts/run_experiment.py --config configs/base.json
 - `results/plots/speed_vs_density.png`
 - `results/plots/blocked_vs_density.png`
 
+## Reproducibility
+
+- Deterministic seeding is used per (density, replication) so the same config yields identical results.
+- Re-running with the same `output_dir` overwrites `summary.csv`, `config_used.json`, and plots.
+
 ## Results (example)
 
 ![Speed vs density](docs/speed_vs_density.png)

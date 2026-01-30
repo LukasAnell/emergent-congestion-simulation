@@ -14,13 +14,18 @@ def ensure_dir (path: str | Path) -> Path:
     return path
 
 
-def seed_from_density_rep (seed_base: int, density: float, rep: int) -> int:
+def make_seed (seed_base: int, density: float, rep_index: int) -> int:
     """Deterministic seed from density and replication index.
 
     Uses a stable formula to avoid Python's randomized hash().
     """
     density_key = int(round(float(density) * 1000))
-    return int(seed_base + density_key * 1000 + rep)
+    return int(seed_base + density_key * 10000 + int(rep_index))
+
+
+def seed_from_density_rep (seed_base: int, density: float, rep: int) -> int:
+    """Backward-compatible wrapper for make_seed()."""
+    return make_seed(seed_base, density, rep)
 
 
 def make_rng (seed: int) -> np.random.Generator:
