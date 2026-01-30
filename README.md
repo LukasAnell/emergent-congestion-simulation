@@ -25,3 +25,7 @@ python scripts/run_experiment.py --config configs/base.json
 - Agents propose moving one cell forward (direction fixed per agent).
 - A move only succeeds if the target cell is empty and uniquely targeted.
 - Updates are synchronous (parallel), and collisions block all involved moves.
+
+## Extension: turning probability
+
+Optional behavior: set `p_turn` (0 to 1) to allow agents to randomly turn left or right before each move proposal. Use `--p-turn` on the CLI or set it in the config JSON.
