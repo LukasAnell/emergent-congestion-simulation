@@ -38,6 +38,7 @@ pip-delete-this-directory.txt
 
 # Unit test / coverage reports
 htmlcov/
+htmlReport/
 .tox/
 .nox/
 .coverage
@@ -292,3 +293,5 @@ __marimo__/
 
 
 planning/
+.test_tmp/
+tests/tmp_work/
