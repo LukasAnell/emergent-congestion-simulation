@@ -7,9 +7,9 @@ from typing import Iterable
 import numpy as np
 import pandas as pd
 
-from .config import Config
+from .config import Config, save_config
 from .simulation import run_simulation
-from .utils import ensure_dir, seed_from_density_rep
+from .utils import ensure_dir, make_seed
 
 SUMMARY_COLUMNS = [
     "density",
@@ -31,13 +31,17 @@ def run_density_sweep (config: Config) -> pd.DataFrame:
     output_dir = ensure_dir(config.output_dir)
     rows: list[dict[str, float | int]] = []
 
-    for density in _densities(config.densities):
+    resolved_densities = _densities(config.densities)
+    config.densities = resolved_densities
+    save_config(Path(output_dir) / "config_used.json", config)
+
+    for density in resolved_densities:
         per_run_v: list[float] = []
         per_run_b: list[float] = []
         A = int(np.floor(float(density) * config.N * config.N))
 
         for rep in range(int(config.replications)):
-            seed = seed_from_density_rep(config.seed_base, density, rep)
+            seed = make_seed(config.seed_base, density, rep)
             metrics = run_simulation(config, seed=seed, density=float(density))
             per_run_v.append(float(metrics["mean_v"]))
             per_run_b.append(float(metrics["mean_b"]))
