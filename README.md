@@ -6,7 +6,24 @@ This project runs an agent-based traffic model on a periodic 2D grid and sweeps 
 
 ```bash
 python -m venv .venv
-.venv\Scripts\activate
+```
+
+Activate the virtual environment for your OS before installing dependencies:
+
+- macOS/Linux:
+  ```bash
+  source .venv/bin/activate
+  ```
+- Windows PowerShell:
+  ```powershell
+  .\.venv\Scripts\Activate.ps1
+  ```
+- Windows cmd:
+  ```bat
+  .\.venv\Scripts\activate.bat
+  ```
+
+```bash
 pip install -r requirements.txt
 python scripts/run_experiment.py --config configs/base.json
 ```
@@ -17,6 +34,11 @@ python scripts/run_experiment.py --config configs/base.json
 - `results/config_used.json`
 - `results/plots/speed_vs_density.png`
 - `results/plots/blocked_vs_density.png`
+
+## Results (example)
+
+![Speed vs density](docs/speed_vs_density.png)
+![Blocked fraction vs density](docs/blocked_vs_density.png)
 
 ## Model rules (baseline)
 
