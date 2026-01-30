@@ -30,13 +30,30 @@ class SimulationState:
     y: np.ndarray
     d: np.ndarray
 
-    def step (self) -> int:
+    def step (
+        self,
+        *,
+        rng: np.random.Generator | None = None,
+        p_turn: float = 0.0,
+    ) -> int:
         """Advance one timestep with synchronous updates.
 
-        Returns the number of agents that moved.
+        Returns the number of agents that moved. When p_turn > 0, agents turn
+        left or right with probability p_turn before proposing moves.
         """
         if self.x.size == 0:
             return 0
+
+        if p_turn > 0.0:
+            if rng is None:
+                rng = np.random.default_rng()
+            if p_turn >= 1.0:
+                turn_mask = np.ones(self.d.size, dtype=bool)
+            else:
+                turn_mask = rng.random(self.d.size) < p_turn
+            if np.any(turn_mask):
+                turn_delta = rng.choice([1, 3], size=int(np.sum(turn_mask)))
+                self.d[turn_mask] = (self.d[turn_mask] + turn_delta) % 4
 
         dx = np.zeros_like(self.x)
         dy = np.zeros_like(self.y)
@@ -49,7 +66,6 @@ class SimulationState:
         nx = (self.x + dx) % self.N
         ny = (self.y + dy) % self.N
 
-        # Extension hook: turning probability could update self.d before proposals.
         # Extension hook: variable speed could propose multi-cell moves.
         # Extension hook: road masks/traffic lights could filter allowed moves.
 
@@ -96,7 +112,7 @@ def run_simulation (config: Config, seed: int, density: float) -> dict[str, floa
     A = int(state.x.size)
 
     for _ in range(int(config.burn_in_steps)):
-        state.step()
+        state.step(rng=rng, p_turn=config.p_turn)
 
     if config.measurement_steps <= 0:
         return {"mean_v": 0.0, "mean_b": 0.0, "A": A}
@@ -104,7 +120,7 @@ def run_simulation (config: Config, seed: int, density: float) -> dict[str, floa
     sum_v = 0.0
     sum_b = 0.0
     for _ in range(int(config.measurement_steps)):
-        moved = state.step()
+        moved = state.step(rng=rng, p_turn=config.p_turn)
         v = (moved / A) if A > 0 else 0.0
         sum_v += v
         sum_b += (1.0 - v)
