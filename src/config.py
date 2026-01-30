@@ -11,8 +11,8 @@ from typing import Any, Iterable
 class Config:
     """Simulation configuration.
 
-    Extension hooks (not implemented): turning probability, variable speed,
-    road masks/intersections, traffic lights.
+    Extension hooks (not implemented): turning probability (behavior),
+    variable speed, road masks/intersections, traffic lights.
     """
 
     N: int = 50
@@ -26,6 +26,7 @@ class Config:
     measurement_steps: int = 1000
     replications: int = 10
     seed_base: int = 123
+    p_turn: float = 0.0
     output_dir: str = "results"
     save_snapshots: bool = False
     snapshot_densities: list[float] = field(default_factory=lambda: [0.1, 0.4, 0.7])
@@ -58,6 +59,8 @@ def _apply_dict (config: Config, data: dict[str, Any]) -> None:
             setattr(config, key, _coerce_floats(value))
         elif key == "snapshot_densities":
             setattr(config, key, _coerce_floats(value))
+        elif key == "p_turn":
+            setattr(config, key, float(value))
         else:
             setattr(config, key, value)
 

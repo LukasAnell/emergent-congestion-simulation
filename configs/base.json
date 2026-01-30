@@ -22,6 +22,7 @@
   "measurement_steps": 1000,
   "replications": 10,
   "seed_base": 123,
+  "p_turn": 0.0,
   "output_dir": "results",
   "save_snapshots": false,
   "snapshot_densities": [0.1, 0.4, 0.7],
