@@ -1,1 +1,27 @@
 # emergent-congestion-simulation
+
+This project runs an agent-based traffic model on a periodic 2D grid and sweeps agent density to measure emergent congestion, reporting mean speed and blocked fraction across replications.
+
+## Quickstart
+
+```bash
+python -m venv .venv
+.venv\Scripts\activate
+pip install -r requirements.txt
+python scripts/run_experiment.py --config configs/base.json
+```
+
+## Outputs
+
+- `results/summary.csv`
+- `results/config_used.json`
+- `results/plots/speed_vs_density.png`
+- `results/plots/blocked_vs_density.png`
+
+## Model rules (baseline)
+
+- Grid is `N x N` with periodic wrap-around.
+- Each cell holds at most one agent.
+- Agents propose moving one cell forward (direction fixed per agent).
+- A move only succeeds if the target cell is empty and uniquely targeted.
+- Updates are synchronous (parallel), and collisions block all involved moves.
