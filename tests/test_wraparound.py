@@ -1,20 +1,20 @@
-import numpy as np
-
-from src.simulation import SimulationState
-
-
-def test_wraparound_east ():
+def test_wraparound_east (state_factory):
     N = 3
-    grid = np.full((N, N), -1, dtype=int)
-    x = np.array([2], dtype=int)
-    y = np.array([1], dtype=int)
-    d = np.array([1], dtype=int)  # East
-    grid[y, x] = 0
-
-    state = SimulationState(N=N, grid=grid, x=x, y=y, d=d)
+    state = state_factory(N, positions=[(2, 1)], directions=[1])  # East
     moved = state.step()
 
     assert moved == 1
     assert state.x[0] == 0
     assert state.y[0] == 1
     assert state.grid[1, 0] == 0
+
+
+def test_wraparound_north (state_factory):
+    N = 3
+    state = state_factory(N, positions=[(1, 0)], directions=[0])  # North
+    moved = state.step()
+
+    assert moved == 1
+    assert state.x[0] == 1
+    assert state.y[0] == 2
+    assert state.grid[2, 1] == 0
