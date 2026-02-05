@@ -56,3 +56,12 @@ python scripts/run_experiment.py --config configs/base.json
 ## Extension: turning probability
 
 Optional behavior: set `p_turn` (0 to 1) to allow agents to randomly turn left or right before each move proposal. Use `--p-turn` on the CLI or set it in the config JSON.
+
+## Optional snapshots
+
+Set `save_snapshots: true` in config to save occupancy images for selected densities.
+
+- `snapshot_densities`: densities to render (e.g. `[0.1, 0.4, 0.7]`)
+- `snapshot_step`: either `"last"` or a zero-based measurement-step index
+
+Output files are written to `results/snapshots/` (for example, `density_0.40.png`).

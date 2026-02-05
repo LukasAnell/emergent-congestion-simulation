@@ -105,27 +105,68 @@ def initialize_state (N: int, density: float, rng: np.random.Generator) -> Simul
     return SimulationState(N=N, grid=grid, x=x, y=y, d=d)
 
 
-def run_simulation (config: Config, seed: int, density: float) -> dict[str, float | int]:
+def run_simulation (
+        config: Config,
+        seed: int,
+        density: float,
+        snapshot_step: str | int | None = None,
+) -> dict[str, float | int | np.ndarray]:
     """Run a single simulation replication and return mean metrics."""
     rng = make_rng(seed)
     state = initialize_state(config.N, density, rng)
     A = int(state.x.size)
 
+    snapshot_idx = None
+    if snapshot_step is not None:
+        snapshot_idx = _resolve_snapshot_index(snapshot_step, int(config.measurement_steps))
+    snapshot_grid: np.ndarray | None = None
+
     for _ in range(int(config.burn_in_steps)):
         state.step(rng=rng, p_turn=config.p_turn)
 
     if config.measurement_steps <= 0:
-        return {"mean_v": 0.0, "mean_b": 0.0, "A": A}
+        if snapshot_idx == 0:
+            snapshot_grid = state.grid.copy()
+        result: dict[str, float | int | np.ndarray] = {"mean_v": 0.0, "mean_b": 0.0, "A": A}
+        if snapshot_grid is not None:
+            result["snapshot_grid"] = snapshot_grid
+        return result
 
     sum_v = 0.0
     sum_b = 0.0
-    for _ in range(int(config.measurement_steps)):
+    for step_idx in range(int(config.measurement_steps)):
         moved = state.step(rng=rng, p_turn=config.p_turn)
         v = (moved / A) if A > 0 else 0.0
         sum_v += v
         sum_b += (1.0 - v)
+        if snapshot_idx is not None and step_idx == snapshot_idx:
+            snapshot_grid = state.grid.copy()
 
     mean_v = sum_v / float(config.measurement_steps)
     mean_b = sum_b / float(config.measurement_steps)
 
-    return {"mean_v": mean_v, "mean_b": mean_b, "A": A}
+    result = {"mean_v": mean_v, "mean_b": mean_b, "A": A}
+    if snapshot_grid is not None:
+        result["snapshot_grid"] = snapshot_grid
+    return result
+
+
+def _resolve_snapshot_index (snapshot_step: str | int, measurement_steps: int) -> int | None:
+    if measurement_steps <= 0:
+        return 0
+    if snapshot_step == "last":
+        return measurement_steps - 1
+    if isinstance(snapshot_step, int):
+        if snapshot_step < 0 or snapshot_step >= measurement_steps:
+            raise ValueError(
+                "snapshot_step as int must satisfy 0 <= snapshot_step < measurement_steps"
+            )
+        return snapshot_step
+    if isinstance(snapshot_step, str) and snapshot_step.strip().isdigit():
+        numeric_step = int(snapshot_step.strip())
+        if numeric_step < 0 or numeric_step >= measurement_steps:
+            raise ValueError(
+                "snapshot_step as int must satisfy 0 <= snapshot_step < measurement_steps"
+            )
+        return numeric_step
+    raise ValueError("snapshot_step must be 'last' or an integer index")
