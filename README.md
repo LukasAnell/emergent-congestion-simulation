@@ -65,3 +65,12 @@ Set `save_snapshots: true` in config to save occupancy images for selected densi
 - `snapshot_step`: either `"last"` or a zero-based measurement-step index
 
 Output files are written to `results/snapshots/` (for example, `density_0.40.png`).
+
+## Optional time series export
+
+Set `save_time_series: true` in config to export per-timestep metrics for selected densities.
+
+- `time_series_densities`: densities to export (e.g. `[0.4]`)
+- `time_series_replication`: replication index to export (zero-based)
+
+Output files are written to `results/time_series/` (for example, `density_0.40_rep_0.csv`).

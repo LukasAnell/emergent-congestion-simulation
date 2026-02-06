@@ -41,20 +41,32 @@ def run_density_sweep (config: Config) -> pd.DataFrame:
     snapshot_step = _resolve_snapshot_step(config.snapshot_step) if save_snapshots else None
     snapshot_dir = ensure_dir(Path(output_dir) / "snapshots") if save_snapshots else None
 
+    time_series_density_keys = _density_keys(config.time_series_densities)
+    save_time_series = bool(config.save_time_series)
+    time_series_replication = int(config.time_series_replication)
+    if save_time_series and time_series_replication < 0:
+        raise ValueError("time_series_replication must be non-negative")
+    if save_time_series and time_series_replication >= int(config.replications):
+        raise ValueError("time_series_replication must be less than replications")
+    time_series_dir = ensure_dir(Path(output_dir) / "time_series") if save_time_series else None
+
     for density in resolved_densities:
         per_run_v: list[float] = []
         per_run_b: list[float] = []
         A = int(np.floor(float(density) * config.N * config.N))
         should_snapshot = save_snapshots and (_density_key(density) in snapshot_density_keys)
+        should_capture_time_series = save_time_series and (_density_key(density) in time_series_density_keys)
 
         for rep in range(int(config.replications)):
             seed = make_seed(config.seed_base, density, rep)
             run_snapshot_step = snapshot_step if (should_snapshot and rep == 0) else None
+            run_collect_time_series = should_capture_time_series and (rep == time_series_replication)
             metrics = run_simulation(
                 config,
                 seed=seed,
                 density=float(density),
                 snapshot_step=run_snapshot_step,
+                collect_time_series=run_collect_time_series,
             )
             per_run_v.append(float(metrics["mean_v"]))
             per_run_b.append(float(metrics["mean_b"]))
@@ -69,6 +81,20 @@ def run_density_sweep (config: Config) -> pd.DataFrame:
                     snapshot_path,
                     title=f"Density {float(density):.2f}",
                 )
+
+            if run_collect_time_series and "time_series" in metrics and time_series_dir is not None:
+                time_series = metrics["time_series"]
+                if not isinstance(time_series, list):
+                    raise TypeError("time_series must be a list")
+                time_series_df = pd.DataFrame(
+                    time_series,
+                    columns=["timestep", "moved_count", "speed", "blocked_fraction"],
+                )
+                time_series_path = (
+                    Path(time_series_dir)
+                    / f"density_{float(density):.2f}_rep_{int(time_series_replication)}.csv"
+                )
+                time_series_df.to_csv(time_series_path, index=False)
 
         mean_speed = float(np.mean(per_run_v)) if per_run_v else 0.0
         std_speed = float(np.std(per_run_v)) if per_run_v else 0.0
