@@ -4,6 +4,7 @@ from __future__ import annotations
 from pathlib import Path
 
 import matplotlib.pyplot as plt
+import numpy as np
 import pandas as pd
 
 from .utils import ensure_dir
@@ -56,6 +57,29 @@ def _plot_errorbar (
     plt.ylabel(ylabel)
     plt.title(title)
     plt.grid(True, alpha=0.3)
+    plt.tight_layout()
+    plt.savefig(output_path, dpi=150)
+    plt.close()
+
+
+def plot_snapshot (
+        grid: np.ndarray,
+        output_path: str | Path,
+        *,
+        title: str | None = None,
+) -> None:
+    """Save a grid occupancy snapshot image."""
+    output_path = Path(output_path)
+    ensure_dir(output_path.parent)
+
+    occupancy = (grid != -1).astype(float)
+
+    plt.figure(figsize=(5, 5))
+    plt.imshow(occupancy, cmap="viridis", interpolation="nearest", vmin=0.0, vmax=1.0)
+    if title:
+        plt.title(title)
+    plt.xticks([])
+    plt.yticks([])
     plt.tight_layout()
     plt.savefig(output_path, dpi=150)
     plt.close()

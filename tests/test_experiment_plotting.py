@@ -60,3 +60,22 @@ def test_experiment_and_plotting (local_tmp_path):
 
     assert (plot_dir / "speed_vs_density.png").exists()
     assert (plot_dir / "blocked_vs_density.png").exists()
+
+
+def test_snapshot_output_created (local_tmp_path):
+    cfg = Config(
+        N=6,
+        densities=[0.2],
+        burn_in_steps=0,
+        measurement_steps=3,
+        replications=1,
+        output_dir=str(local_tmp_path / "results"),
+        save_snapshots=True,
+        snapshot_densities=[0.2],
+        snapshot_step="last",
+    )
+
+    run_density_sweep(cfg)
+
+    snapshot_path = local_tmp_path / "results" / "snapshots" / "density_0.20.png"
+    assert snapshot_path.exists()
