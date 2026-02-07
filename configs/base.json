@@ -25,9 +25,14 @@
   "p_turn": 0.0,
   "output_dir": "results",
   "save_snapshots": true,
-  "snapshot_densities": [0.1, 0.4, 0.7],
+  "snapshot_densities": [
+    0.1,
+    0.4,
+    0.7
+  ],
   "snapshot_step": "last",
   "save_time_series": true,
   "time_series_densities": [],
-  "time_series_replication": 0
+  "time_series_replication": 0,
+  "p_turn_values": []
 }

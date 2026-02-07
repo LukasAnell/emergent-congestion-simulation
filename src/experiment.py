@@ -2,6 +2,7 @@
 from __future__ import annotations
 
 import json
+from numbers import Real
 from pathlib import Path
 from typing import Iterable
 
@@ -28,6 +29,21 @@ SUMMARY_COLUMNS = [
     "seed_base",
     "critical_density_est",
     "critical_drop_est",
+]
+
+TURN_SWEEP_COLUMNS = [
+    "p_turn",
+    "density",
+    "mean_speed",
+    "std_speed",
+    "mean_blocked",
+    "std_blocked",
+    "N",
+    "A",
+    "burn_in_steps",
+    "measurement_steps",
+    "K",
+    "seed_base",
 ]
 
 
@@ -72,8 +88,8 @@ def run_density_sweep(config: Config) -> pd.DataFrame:
                 snapshot_step=run_snapshot_step,
                 collect_time_series=run_collect_time_series,
             )
-            per_run_v.append(float(metrics["mean_v"]))
-            per_run_b.append(float(metrics["mean_b"]))
+            per_run_v.append(_metric_as_float(metrics, key="mean_v"))
+            per_run_b.append(_metric_as_float(metrics, key="mean_b"))
 
             if run_snapshot_step is not None and "snapshot_grid" in metrics and snapshot_dir is not None:
                 snapshot_path = Path(snapshot_dir) / f"density_{float(density):.2f}.png"
@@ -154,6 +170,75 @@ def run_density_sweep(config: Config) -> pd.DataFrame:
     return df
 
 
+def run_turn_sweep(config: Config) -> pd.DataFrame:
+    """Run optional p_turn x density sweep and write CSV outputs."""
+    output_dir = ensure_dir(config.output_dir)
+    resolved_densities = _densities(config.densities)
+    resolved_p_turn_values = _densities(config.p_turn_values)
+
+    rows: list[dict[str, float | int]] = []
+
+    for p_turn in resolved_p_turn_values:
+        _validate_probability(p_turn, key="p_turn_values")
+        for density in resolved_densities:
+            per_run_v: list[float] = []
+            per_run_b: list[float] = []
+            A = int(np.floor(float(density) * config.N * config.N))
+
+            for rep in range(int(config.replications)):
+                seed = make_seed(config.seed_base, density, rep)
+                metrics = run_simulation(
+                    config,
+                    seed=seed,
+                    density=float(density),
+                    p_turn_override=float(p_turn),
+                )
+                per_run_v.append(_metric_as_float(metrics, key="mean_v"))
+                per_run_b.append(_metric_as_float(metrics, key="mean_b"))
+
+            rows.append(
+                {
+                    "p_turn": float(p_turn),
+                    "density": float(density),
+                    "mean_speed": float(np.mean(per_run_v)) if per_run_v else 0.0,
+                    "std_speed": float(np.std(per_run_v)) if per_run_v else 0.0,
+                    "mean_blocked": float(np.mean(per_run_b)) if per_run_b else 0.0,
+                    "std_blocked": float(np.std(per_run_b)) if per_run_b else 0.0,
+                    "N": int(config.N),
+                    "A": A,
+                    "burn_in_steps": int(config.burn_in_steps),
+                    "measurement_steps": int(config.measurement_steps),
+                    "K": int(config.replications),
+                    "seed_base": int(config.seed_base),
+                }
+            )
+
+    df = pd.DataFrame(rows, columns=TURN_SWEEP_COLUMNS)
+    turn_sweep_path = Path(output_dir) / "turn_sweep.csv"
+    df.to_csv(turn_sweep_path, index=False)
+
+    if df.empty:
+        return df
+
+    speed_matrix = (
+        df.pivot(index="p_turn", columns="density", values="mean_speed")
+        .sort_index(axis=0)
+        .sort_index(axis=1)
+    )
+    speed_matrix_path = Path(output_dir) / "turn_sweep_speed_matrix.csv"
+    speed_matrix.to_csv(speed_matrix_path, index_label="p_turn")
+
+    blocked_matrix = (
+        df.pivot(index="p_turn", columns="density", values="mean_blocked")
+        .sort_index(axis=0)
+        .sort_index(axis=1)
+    )
+    blocked_matrix_path = Path(output_dir) / "turn_sweep_blocked_matrix.csv"
+    blocked_matrix.to_csv(blocked_matrix_path, index_label="p_turn")
+
+    return df
+
+
 def _densities(values: Iterable[float]) -> list[float]:
     return [float(v) for v in values]
 
@@ -176,3 +261,19 @@ def _resolve_snapshot_step(value: str | int) -> str | int:
         if stripped.isdigit():
             return int(stripped)
     raise ValueError("snapshot_step must be 'last' or a non-negative integer")
+
+
+def _validate_probability(value: float, *, key: str) -> None:
+    if value < 0.0 or value > 1.0:
+        raise ValueError(f"{key} values must be within [0, 1]")
+
+
+def _metric_as_float(
+        metrics: dict[str, float | int | np.ndarray | list[dict[str, float | int]]],
+        *,
+        key: str,
+) -> float:
+    value = metrics[key]
+    if isinstance(value, Real):
+        return float(value)
+    raise TypeError(f"{key} must be numeric")

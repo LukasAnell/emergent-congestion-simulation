@@ -83,3 +83,35 @@ def plot_snapshot(
     plt.tight_layout()
     plt.savefig(output_path, dpi=150)
     plt.close()
+
+
+def plot_turn_sweep_heatmap(
+        speed_matrix_csv_path: str | Path,
+        output_path: str | Path,
+) -> None:
+    """Plot mean-speed heatmap for p_turn x density sweep."""
+    matrix_df = pd.read_csv(speed_matrix_csv_path, index_col=0)
+    output_path = Path(output_path)
+    ensure_dir(output_path.parent)
+
+    x_labels = [f"{float(v):.2f}" for v in matrix_df.columns]
+    y_labels = [f"{float(v):.2f}" for v in matrix_df.index]
+
+    plt.figure(figsize=(8, 4.5))
+    image = plt.imshow(
+        matrix_df.to_numpy(dtype=float),
+        origin="lower",
+        aspect="auto",
+        cmap="viridis",
+        vmin=0.0,
+        vmax=1.0,
+    )
+    plt.colorbar(image, label="Mean speed")
+    plt.xticks(np.arange(len(x_labels)), x_labels, rotation=45, ha="right")
+    plt.yticks(np.arange(len(y_labels)), y_labels)
+    plt.xlabel("Density")
+    plt.ylabel("Turning probability (p_turn)")
+    plt.title("Mean Speed Heatmap: Density vs Turning")
+    plt.tight_layout()
+    plt.savefig(output_path, dpi=150)
+    plt.close()

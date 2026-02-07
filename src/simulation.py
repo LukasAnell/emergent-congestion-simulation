@@ -111,11 +111,13 @@ def run_simulation(
         density: float,
         snapshot_step: str | int | None = None,
         collect_time_series: bool = False,
+        p_turn_override: float | None = None,
 ) -> dict[str, float | int | np.ndarray | list[dict[str, float | int]]]:
     """Run a single simulation replication and return mean metrics."""
     rng = make_rng(seed)
     state = initialize_state(config.N, density, rng)
     A = int(state.x.size)
+    p_turn = float(config.p_turn) if p_turn_override is None else float(p_turn_override)
 
     snapshot_idx = None
     if snapshot_step is not None:
@@ -124,7 +126,7 @@ def run_simulation(
     time_series: list[dict[str, float | int]] = []
 
     for _ in range(int(config.burn_in_steps)):
-        state.step(rng=rng, p_turn=config.p_turn)
+        state.step(rng=rng, p_turn=p_turn)
 
     if config.measurement_steps <= 0:
         if snapshot_idx == 0:
@@ -143,7 +145,7 @@ def run_simulation(
     sum_v = 0.0
     sum_b = 0.0
     for step_idx in range(int(config.measurement_steps)):
-        moved = state.step(rng=rng, p_turn=config.p_turn)
+        moved = state.step(rng=rng, p_turn=p_turn)
         v = (moved / A) if A > 0 else 0.0
         blocked = 1.0 - v
         sum_v += v

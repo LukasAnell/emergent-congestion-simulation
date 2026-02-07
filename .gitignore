@@ -297,3 +297,4 @@ planning/
 tests/tmp_work/
 results/
 tests/tests/
+/.idea/csv-editor.xml
