@@ -32,6 +32,7 @@ python scripts/run_experiment.py --config configs/base.json
 
 - `results/summary.csv`
 - `results/config_used.json`
+- `results/analysis.json`
 - `results/plots/speed_vs_density.png`
 - `results/plots/blocked_vs_density.png`
 
@@ -39,6 +40,14 @@ python scripts/run_experiment.py --config configs/base.json
 
 - Deterministic seeding is used per (density, replication) so the same config yields identical results.
 - Re-running with the same `output_dir` overwrites `summary.csv`, `config_used.json`, and plots.
+
+## Critical density estimate
+
+After each density sweep, the project estimates a critical density from the steepest drop in
+`mean_speed` between adjacent density points. The estimate is written to:
+
+- `results/analysis.json`
+- `results/summary.csv` columns `critical_density_est` and `critical_drop_est`
 
 ## Results (example)
 

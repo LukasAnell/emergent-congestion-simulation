@@ -1,12 +1,14 @@
 """Experiment runner for density sweeps."""
 from __future__ import annotations
 
+import json
 from pathlib import Path
 from typing import Iterable
 
 import numpy as np
 import pandas as pd
 
+from .analysis import estimate_critical_density
 from .config import Config, save_config
 from .plotting import plot_snapshot
 from .simulation import run_simulation
@@ -24,6 +26,8 @@ SUMMARY_COLUMNS = [
     "measurement_steps",
     "K",
     "seed_base",
+    "critical_density_est",
+    "critical_drop_est",
 ]
 
 
@@ -117,9 +121,36 @@ def run_density_sweep (config: Config) -> pd.DataFrame:
             }
         )
 
-    df = pd.DataFrame(rows, columns=SUMMARY_COLUMNS)
+    df = pd.DataFrame(rows)
+
+    if not df.empty:
+        critical_density_est, critical_drop_est = estimate_critical_density(
+            list(df["density"]),
+            list(df["mean_speed"]),
+        )
+    else:
+        critical_density_est = 0.0
+        critical_drop_est = 0.0
+
+    df["critical_density_est"] = critical_density_est
+    df["critical_drop_est"] = critical_drop_est
+    df = df.reindex(columns=SUMMARY_COLUMNS)
+
     summary_path = Path(output_dir) / "summary.csv"
     df.to_csv(summary_path, index=False)
+
+    analysis_path = Path(output_dir) / "analysis.json"
+    with analysis_path.open("w", encoding="utf-8") as f:
+        json.dump(
+            {
+                "critical_density_est": float(critical_density_est),
+                "critical_drop_est": float(critical_drop_est),
+            },
+            f,
+            indent=2,
+            sort_keys=True,
+        )
+
     return df
 
 
