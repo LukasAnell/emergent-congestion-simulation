@@ -110,7 +110,8 @@ def run_simulation (
         seed: int,
         density: float,
         snapshot_step: str | int | None = None,
-) -> dict[str, float | int | np.ndarray]:
+        collect_time_series: bool = False,
+) -> dict[str, float | int | np.ndarray | list[dict[str, float | int]]]:
     """Run a single simulation replication and return mean metrics."""
     rng = make_rng(seed)
     state = initialize_state(config.N, density, rng)
@@ -120,6 +121,7 @@ def run_simulation (
     if snapshot_step is not None:
         snapshot_idx = _resolve_snapshot_index(snapshot_step, int(config.measurement_steps))
     snapshot_grid: np.ndarray | None = None
+    time_series: list[dict[str, float | int]] = []
 
     for _ in range(int(config.burn_in_steps)):
         state.step(rng=rng, p_turn=config.p_turn)
@@ -127,9 +129,15 @@ def run_simulation (
     if config.measurement_steps <= 0:
         if snapshot_idx == 0:
             snapshot_grid = state.grid.copy()
-        result: dict[str, float | int | np.ndarray] = {"mean_v": 0.0, "mean_b": 0.0, "A": A}
+        result: dict[str, float | int | np.ndarray | list[dict[str, float | int]]] = {
+            "mean_v": 0.0,
+            "mean_b": 0.0,
+            "A": A,
+        }
         if snapshot_grid is not None:
             result["snapshot_grid"] = snapshot_grid
+        if collect_time_series:
+            result["time_series"] = time_series
         return result
 
     sum_v = 0.0
@@ -137,10 +145,20 @@ def run_simulation (
     for step_idx in range(int(config.measurement_steps)):
         moved = state.step(rng=rng, p_turn=config.p_turn)
         v = (moved / A) if A > 0 else 0.0
+        blocked = 1.0 - v
         sum_v += v
-        sum_b += (1.0 - v)
+        sum_b += blocked
         if snapshot_idx is not None and step_idx == snapshot_idx:
             snapshot_grid = state.grid.copy()
+        if collect_time_series:
+            time_series.append(
+                {
+                    "timestep": int(step_idx),
+                    "moved_count": int(moved),
+                    "speed": float(v),
+                    "blocked_fraction": float(blocked),
+                }
+            )
 
     mean_v = sum_v / float(config.measurement_steps)
     mean_b = sum_b / float(config.measurement_steps)
@@ -148,6 +166,8 @@ def run_simulation (
     result = {"mean_v": mean_v, "mean_b": mean_b, "A": A}
     if snapshot_grid is not None:
         result["snapshot_grid"] = snapshot_grid
+    if collect_time_series:
+        result["time_series"] = time_series
     return result
 
 

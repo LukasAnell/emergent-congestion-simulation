@@ -1,5 +1,6 @@
 import matplotlib
 import numpy as np
+import pandas as pd
 
 matplotlib.use("Agg")
 
@@ -79,3 +80,26 @@ def test_snapshot_output_created (local_tmp_path):
 
     snapshot_path = local_tmp_path / "results" / "snapshots" / "density_0.20.png"
     assert snapshot_path.exists()
+
+
+def test_time_series_output_created (local_tmp_path):
+    cfg = Config(
+        N=6,
+        densities=[0.2],
+        burn_in_steps=0,
+        measurement_steps=4,
+        replications=2,
+        output_dir=str(local_tmp_path / "results"),
+        save_time_series=True,
+        time_series_densities=[0.2],
+        time_series_replication=1,
+    )
+
+    run_density_sweep(cfg)
+
+    ts_path = local_tmp_path / "results" / "time_series" / "density_0.20_rep_1.csv"
+    assert ts_path.exists()
+
+    df = pd.read_csv(ts_path)
+    assert list(df.columns) == ["timestep", "moved_count", "speed", "blocked_fraction"]
+    assert len(df) == 4
