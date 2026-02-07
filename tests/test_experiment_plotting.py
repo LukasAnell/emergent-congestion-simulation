@@ -54,7 +54,14 @@ def test_experiment_and_plotting (local_tmp_path):
         "measurement_steps",
         "K",
         "seed_base",
+        "critical_density_est",
+        "critical_drop_est",
     ]
+    assert float(df["critical_density_est"].iloc[0]) >= float(df["density"].min())
+    assert float(df["critical_density_est"].iloc[0]) <= float(df["density"].max())
+
+    analysis_path = local_tmp_path / "results" / "analysis.json"
+    assert analysis_path.exists()
 
     plot_dir = local_tmp_path / "results" / "plots"
     plot_summary(summary_path, plot_dir)
