@@ -1,4 +1,4 @@
-def test_conflict_rule_blocks_all (state_factory):
+def test_conflict_rule_blocks_all(state_factory):
     N = 3
     state = state_factory(
         N,
@@ -14,7 +14,7 @@ def test_conflict_rule_blocks_all (state_factory):
     assert state.grid[1, 2] == 1
 
 
-def test_blocked_by_occupancy (state_factory):
+def test_blocked_by_occupancy(state_factory):
     N = 3
     state = state_factory(
         N,

@@ -4,7 +4,7 @@ from src.config import Config
 from src.experiment import run_density_sweep
 
 
-def test_deterministic_sweep_outputs (local_tmp_path):
+def test_deterministic_sweep_outputs(local_tmp_path):
     cfg = Config(
         N=6,
         densities=[0.2],

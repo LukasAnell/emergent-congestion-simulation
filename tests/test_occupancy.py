@@ -4,7 +4,7 @@ from src.simulation import initialize_state
 from src.utils import make_rng
 
 
-def test_occupancy_invariant ():
+def test_occupancy_invariant():
     rng = make_rng(42)
     state = initialize_state(N=10, density=0.3, rng=rng)
     A = int(state.x.size)

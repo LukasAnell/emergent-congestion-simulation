@@ -18,16 +18,16 @@
     0.75,
     0.8
   ],
-  "burn_in_steps": 200,
-  "measurement_steps": 1000,
+  "burn_in_steps": 100,
+  "measurement_steps": 500,
   "replications": 10,
   "seed_base": 123,
   "p_turn": 0.0,
   "output_dir": "results",
-  "save_snapshots": false,
+  "save_snapshots": true,
   "snapshot_densities": [0.1, 0.4, 0.7],
   "snapshot_step": "last",
-  "save_time_series": false,
+  "save_time_series": true,
   "time_series_densities": [],
   "time_series_replication": 0
 }

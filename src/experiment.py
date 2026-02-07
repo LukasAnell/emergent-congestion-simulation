@@ -1,12 +1,14 @@
 """Experiment runner for density sweeps."""
 from __future__ import annotations
 
+import json
 from pathlib import Path
 from typing import Iterable
 
 import numpy as np
 import pandas as pd
 
+from .analysis import estimate_critical_density
 from .config import Config, save_config
 from .plotting import plot_snapshot
 from .simulation import run_simulation
@@ -24,10 +26,12 @@ SUMMARY_COLUMNS = [
     "measurement_steps",
     "K",
     "seed_base",
+    "critical_density_est",
+    "critical_drop_est",
 ]
 
 
-def run_density_sweep (config: Config) -> pd.DataFrame:
+def run_density_sweep(config: Config) -> pd.DataFrame:
     """Run the density sweep and write summary CSV to output_dir."""
     output_dir = ensure_dir(config.output_dir)
     rows: list[dict[str, float | int]] = []
@@ -91,8 +95,8 @@ def run_density_sweep (config: Config) -> pd.DataFrame:
                     columns=["timestep", "moved_count", "speed", "blocked_fraction"],
                 )
                 time_series_path = (
-                    Path(time_series_dir)
-                    / f"density_{float(density):.2f}_rep_{int(time_series_replication)}.csv"
+                        Path(time_series_dir)
+                        / f"density_{float(density):.2f}_rep_{int(time_series_replication)}.csv"
                 )
                 time_series_df.to_csv(time_series_path, index=False)
 
@@ -117,25 +121,52 @@ def run_density_sweep (config: Config) -> pd.DataFrame:
             }
         )
 
-    df = pd.DataFrame(rows, columns=SUMMARY_COLUMNS)
+    df = pd.DataFrame(rows)
+
+    if not df.empty:
+        critical_density_est, critical_drop_est = estimate_critical_density(
+            list(df["density"]),
+            list(df["mean_speed"]),
+        )
+    else:
+        critical_density_est = 0.0
+        critical_drop_est = 0.0
+
+    df["critical_density_est"] = critical_density_est
+    df["critical_drop_est"] = critical_drop_est
+    df = df.reindex(columns=SUMMARY_COLUMNS)
+
     summary_path = Path(output_dir) / "summary.csv"
     df.to_csv(summary_path, index=False)
+
+    analysis_path = Path(output_dir) / "analysis.json"
+    with analysis_path.open("w", encoding="utf-8") as f:
+        json.dump(
+            {
+                "critical_density_est": float(critical_density_est),
+                "critical_drop_est": float(critical_drop_est),
+            },
+            f,
+            indent=2,
+            sort_keys=True,
+        )
+
     return df
 
 
-def _densities (values: Iterable[float]) -> list[float]:
+def _densities(values: Iterable[float]) -> list[float]:
     return [float(v) for v in values]
 
 
-def _density_key (value: float) -> int:
+def _density_key(value: float) -> int:
     return int(round(float(value) * 1000))
 
 
-def _density_keys (values: Iterable[float]) -> set[int]:
+def _density_keys(values: Iterable[float]) -> set[int]:
     return {_density_key(v) for v in values}
 
 
-def _resolve_snapshot_step (value: str | int) -> str | int:
+def _resolve_snapshot_step(value: str | int) -> str | int:
     if isinstance(value, int):
         return value
     if isinstance(value, str):
