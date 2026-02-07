@@ -1,3 +1,5 @@
+import pytest
+
 from src.analysis import estimate_critical_density
 
 
@@ -7,8 +9,8 @@ def test_estimate_critical_density_steepest_drop_segment():
 
     critical_density_est, critical_drop_est = estimate_critical_density(densities, mean_speeds)
 
-    assert critical_density_est == 0.25
-    assert critical_drop_est == -0.45
+    assert critical_density_est == pytest.approx(0.25)
+    assert critical_drop_est == pytest.approx(-0.45)
 
 
 def test_estimate_critical_density_single_point():
