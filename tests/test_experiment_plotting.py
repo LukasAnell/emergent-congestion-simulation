@@ -10,7 +10,7 @@ from src.plotting import plot_summary  # noqa: E402
 from src.utils import ensure_dir, make_rng, mean, parse_density_list, seed_from_density_rep, std  # noqa: E402
 
 
-def test_utils_helpers (local_tmp_path):
+def test_utils_helpers(local_tmp_path):
     out_dir = ensure_dir(local_tmp_path / "nested" / "dir")
     assert out_dir.exists()
 
@@ -29,7 +29,7 @@ def test_utils_helpers (local_tmp_path):
     assert std([1.0, 3.0]) == float(np.std([1.0, 3.0]))
 
 
-def test_experiment_and_plotting (local_tmp_path):
+def test_experiment_and_plotting(local_tmp_path):
     cfg = Config(
         N=5,
         densities=[0.2],
@@ -70,7 +70,7 @@ def test_experiment_and_plotting (local_tmp_path):
     assert (plot_dir / "blocked_vs_density.png").exists()
 
 
-def test_snapshot_output_created (local_tmp_path):
+def test_snapshot_output_created(local_tmp_path):
     cfg = Config(
         N=6,
         densities=[0.2],
@@ -89,7 +89,7 @@ def test_snapshot_output_created (local_tmp_path):
     assert snapshot_path.exists()
 
 
-def test_time_series_output_created (local_tmp_path):
+def test_time_series_output_created(local_tmp_path):
     cfg = Config(
         N=6,
         densities=[0.2],

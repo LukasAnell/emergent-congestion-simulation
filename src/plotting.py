@@ -10,7 +10,7 @@ import pandas as pd
 from .utils import ensure_dir
 
 
-def plot_summary (summary_csv_path: str | Path, output_dir: str | Path) -> None:
+def plot_summary(summary_csv_path: str | Path, output_dir: str | Path) -> None:
     """Generate plots from summary CSV."""
     df = pd.read_csv(summary_csv_path)
     output_dir = ensure_dir(output_dir)
@@ -35,7 +35,7 @@ def plot_summary (summary_csv_path: str | Path, output_dir: str | Path) -> None:
     )
 
 
-def _plot_errorbar (
+def _plot_errorbar(
         df: pd.DataFrame,
         *,
         x: str,
@@ -62,7 +62,7 @@ def _plot_errorbar (
     plt.close()
 
 
-def plot_snapshot (
+def plot_snapshot(
         grid: np.ndarray,
         output_path: str | Path,
         *,

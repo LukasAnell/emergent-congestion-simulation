@@ -30,11 +30,11 @@ class SimulationState:
     y: np.ndarray
     d: np.ndarray
 
-    def step (
-        self,
-        *,
-        rng: np.random.Generator | None = None,
-        p_turn: float = 0.0,
+    def step(
+            self,
+            *,
+            rng: np.random.Generator | None = None,
+            p_turn: float = 0.0,
     ) -> int:
         """Advance one timestep with synchronous updates.
 
@@ -86,7 +86,7 @@ class SimulationState:
         return int(movers.size)
 
 
-def initialize_state (N: int, density: float, rng: np.random.Generator) -> SimulationState:
+def initialize_state(N: int, density: float, rng: np.random.Generator) -> SimulationState:
     """Initialize grid and agents for a given density."""
     A = int(np.floor(density * N * N))
     grid = np.full((N, N), -1, dtype=int)
@@ -105,7 +105,7 @@ def initialize_state (N: int, density: float, rng: np.random.Generator) -> Simul
     return SimulationState(N=N, grid=grid, x=x, y=y, d=d)
 
 
-def run_simulation (
+def run_simulation(
         config: Config,
         seed: int,
         density: float,
@@ -171,7 +171,7 @@ def run_simulation (
     return result
 
 
-def _resolve_snapshot_index (snapshot_step: str | int, measurement_steps: int) -> int | None:
+def _resolve_snapshot_index(snapshot_step: str | int, measurement_steps: int) -> int | None:
     if measurement_steps <= 0:
         return 0
     if snapshot_step == "last":

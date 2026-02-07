@@ -15,7 +15,7 @@ from src.plotting import plot_summary  # noqa: E402
 from src.utils import ensure_dir, parse_density_list  # noqa: E402
 
 
-def _build_parser () -> argparse.ArgumentParser:
+def _build_parser() -> argparse.ArgumentParser:
     parser = argparse.ArgumentParser(description="Run congestion density sweep.")
     parser.add_argument("--config", type=str, default="configs/base.json", help="Path to config JSON")
     parser.add_argument("--N", type=int, help="Grid size N")
@@ -30,7 +30,7 @@ def _build_parser () -> argparse.ArgumentParser:
     return parser
 
 
-def main () -> None:
+def main() -> None:
     parser = _build_parser()
     args = parser.parse_args()
 

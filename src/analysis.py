@@ -4,7 +4,7 @@ from __future__ import annotations
 from typing import Sequence
 
 
-def estimate_critical_density (
+def estimate_critical_density(
         densities: Sequence[float],
         mean_speeds: Sequence[float],
 ) -> tuple[float, float]:

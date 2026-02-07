@@ -1,4 +1,4 @@
-def test_wraparound_east (state_factory):
+def test_wraparound_east(state_factory):
     N = 3
     state = state_factory(N, positions=[(2, 1)], directions=[1])  # East
     moved = state.step()
@@ -9,7 +9,7 @@ def test_wraparound_east (state_factory):
     assert state.grid[1, 0] == 0
 
 
-def test_wraparound_north (state_factory):
+def test_wraparound_north(state_factory):
     N = 3
     state = state_factory(N, positions=[(1, 0)], directions=[0])  # North
     moved = state.step()

@@ -36,7 +36,7 @@ class Config:
     time_series_replication: int = 0
 
 
-def load_config (path: str | Path) -> Config:
+def load_config(path: str | Path) -> Config:
     """Load configuration from a JSON file, overriding defaults."""
     path = Path(path)
     with path.open("r", encoding="utf-8") as f:
@@ -46,7 +46,7 @@ def load_config (path: str | Path) -> Config:
     return cfg
 
 
-def save_config (path: str | Path, config: Config) -> None:
+def save_config(path: str | Path, config: Config) -> None:
     """Save configuration to JSON."""
     path = Path(path)
     path.parent.mkdir(parents=True, exist_ok=True)
@@ -54,7 +54,7 @@ def save_config (path: str | Path, config: Config) -> None:
         json.dump(asdict(config), f, indent=2, sort_keys=True)
 
 
-def _apply_dict (config: Config, data: dict[str, Any]) -> None:
+def _apply_dict(config: Config, data: dict[str, Any]) -> None:
     for key, value in data.items():
         if not hasattr(config, key):
             continue
@@ -70,5 +70,5 @@ def _apply_dict (config: Config, data: dict[str, Any]) -> None:
             setattr(config, key, value)
 
 
-def _coerce_floats (values: Iterable[Any]) -> list[float]:
+def _coerce_floats(values: Iterable[Any]) -> list[float]:
     return [float(v) for v in values]

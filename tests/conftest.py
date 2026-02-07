@@ -1,14 +1,14 @@
 import uuid
 from pathlib import Path
 
-import pytest
 import numpy as np
+import pytest
 
 from src.simulation import SimulationState
 
 
 @pytest.fixture()
-def local_tmp_path ():
+def local_tmp_path():
     base = Path.cwd() / "tests" / "tmp_work"
     base.mkdir(parents=True, exist_ok=True)
     tmp = base / uuid.uuid4().hex
@@ -17,10 +17,10 @@ def local_tmp_path ():
 
 
 @pytest.fixture()
-def state_factory ():
+def state_factory():
     """Create small deterministic SimulationState fixtures for micro-scenarios."""
 
-    def _make_state (N: int, positions: list[tuple[int, int]], directions: list[int]) -> SimulationState:
+    def _make_state(N: int, positions: list[tuple[int, int]], directions: list[int]) -> SimulationState:
         if len(positions) != len(directions):
             raise ValueError("positions and directions must be the same length")
         grid = np.full((N, N), -1, dtype=int)

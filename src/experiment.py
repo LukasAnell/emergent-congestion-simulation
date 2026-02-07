@@ -31,7 +31,7 @@ SUMMARY_COLUMNS = [
 ]
 
 
-def run_density_sweep (config: Config) -> pd.DataFrame:
+def run_density_sweep(config: Config) -> pd.DataFrame:
     """Run the density sweep and write summary CSV to output_dir."""
     output_dir = ensure_dir(config.output_dir)
     rows: list[dict[str, float | int]] = []
@@ -95,8 +95,8 @@ def run_density_sweep (config: Config) -> pd.DataFrame:
                     columns=["timestep", "moved_count", "speed", "blocked_fraction"],
                 )
                 time_series_path = (
-                    Path(time_series_dir)
-                    / f"density_{float(density):.2f}_rep_{int(time_series_replication)}.csv"
+                        Path(time_series_dir)
+                        / f"density_{float(density):.2f}_rep_{int(time_series_replication)}.csv"
                 )
                 time_series_df.to_csv(time_series_path, index=False)
 
@@ -154,19 +154,19 @@ def run_density_sweep (config: Config) -> pd.DataFrame:
     return df
 
 
-def _densities (values: Iterable[float]) -> list[float]:
+def _densities(values: Iterable[float]) -> list[float]:
     return [float(v) for v in values]
 
 
-def _density_key (value: float) -> int:
+def _density_key(value: float) -> int:
     return int(round(float(value) * 1000))
 
 
-def _density_keys (values: Iterable[float]) -> set[int]:
+def _density_keys(values: Iterable[float]) -> set[int]:
     return {_density_key(v) for v in values}
 
 
-def _resolve_snapshot_step (value: str | int) -> str | int:
+def _resolve_snapshot_step(value: str | int) -> str | int:
     if isinstance(value, int):
         return value
     if isinstance(value, str):

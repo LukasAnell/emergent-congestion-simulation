@@ -4,7 +4,7 @@ from src.config import Config
 from src.simulation import SimulationState, initialize_state, run_simulation
 
 
-def test_initialize_state_zero_agents ():
+def test_initialize_state_zero_agents():
     rng = np.random.default_rng(1)
     state = initialize_state(N=5, density=0.0, rng=rng)
 
@@ -14,7 +14,7 @@ def test_initialize_state_zero_agents ():
     assert np.all(state.grid == -1)
 
 
-def test_step_no_allowed_moves_due_to_occupancy ():
+def test_step_no_allowed_moves_due_to_occupancy():
     N = 2
     grid = np.full((N, N), -1, dtype=int)
     x = np.array([0, 1], dtype=int)
@@ -30,7 +30,7 @@ def test_step_no_allowed_moves_due_to_occupancy ():
     assert state.y.tolist() == [0, 0]
 
 
-def test_step_with_no_agents_returns_zero ():
+def test_step_with_no_agents_returns_zero():
     N = 3
     grid = np.full((N, N), -1, dtype=int)
     state = SimulationState(
@@ -47,7 +47,7 @@ def test_step_with_no_agents_returns_zero ():
     assert np.all(state.grid == -1)
 
 
-def test_run_simulation_with_zero_measurement_steps ():
+def test_run_simulation_with_zero_measurement_steps():
     cfg = Config(N=5, burn_in_steps=1, measurement_steps=0, replications=1)
     metrics = run_simulation(cfg, seed=1, density=0.2)
 

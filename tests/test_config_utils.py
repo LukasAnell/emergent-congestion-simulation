@@ -3,7 +3,7 @@ import json
 from src.config import Config, load_config, save_config
 
 
-def test_save_and_load_config_roundtrip (local_tmp_path):
+def test_save_and_load_config_roundtrip(local_tmp_path):
     cfg = Config()
     cfg.N = 12
     cfg.densities = [0.2, 0.4]
@@ -20,7 +20,7 @@ def test_save_and_load_config_roundtrip (local_tmp_path):
     assert loaded.output_dir == "results-test"
 
 
-def test_load_config_ignores_unknown_keys (local_tmp_path):
+def test_load_config_ignores_unknown_keys(local_tmp_path):
     data = {
         "N": 7,
         "densities": [0.1, 0.2],
