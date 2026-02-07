@@ -27,7 +27,7 @@
   "replications": 15,
   "seed_base": 123,
   "p_turn": 0.2,
-  "output_dir": "results/high_quality",
+  "output_dir": "results/complex",
   "save_snapshots": true,
   "snapshot_densities": [
     0.08,
