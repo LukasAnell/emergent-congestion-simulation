@@ -5,8 +5,8 @@ import pandas as pd
 matplotlib.use("Agg")
 
 from src.config import Config  # noqa: E402
-from src.experiment import run_density_sweep  # noqa: E402
-from src.plotting import plot_summary  # noqa: E402
+from src.experiment import run_density_sweep, run_turn_sweep  # noqa: E402
+from src.plotting import plot_summary, plot_turn_sweep_heatmap  # noqa: E402
 from src.utils import ensure_dir, make_rng, mean, parse_density_list, seed_from_density_rep, std  # noqa: E402
 
 
@@ -57,8 +57,10 @@ def test_experiment_and_plotting(local_tmp_path):
         "critical_density_est",
         "critical_drop_est",
     ]
-    assert float(df["critical_density_est"].iloc[0]) >= float(df["density"].min())
-    assert float(df["critical_density_est"].iloc[0]) <= float(df["density"].max())
+    critical_density_est = float(df["critical_density_est"].iat[0])
+    density_values = df["density"].to_numpy(dtype=float)
+    assert critical_density_est >= float(np.min(density_values))
+    assert critical_density_est <= float(np.max(density_values))
 
     analysis_path = local_tmp_path / "results" / "analysis.json"
     assert analysis_path.exists()
@@ -110,3 +112,33 @@ def test_time_series_output_created(local_tmp_path):
     df = pd.read_csv(ts_path)
     assert list(df.columns) == ["timestep", "moved_count", "speed", "blocked_fraction"]
     assert len(df) == 4
+
+
+def test_turn_sweep_outputs_created(local_tmp_path):
+    cfg = Config(
+        N=6,
+        densities=[0.2, 0.4],
+        burn_in_steps=0,
+        measurement_steps=3,
+        replications=1,
+        output_dir=str(local_tmp_path / "results"),
+        p_turn_values=[0.0, 0.2],
+    )
+
+    df = run_turn_sweep(cfg)
+    assert len(df) == 4
+    assert sorted(df["p_turn"].unique().tolist()) == [0.0, 0.2]
+
+    turn_sweep_path = local_tmp_path / "results" / "turn_sweep.csv"
+    speed_matrix_path = local_tmp_path / "results" / "turn_sweep_speed_matrix.csv"
+    blocked_matrix_path = local_tmp_path / "results" / "turn_sweep_blocked_matrix.csv"
+    assert turn_sweep_path.exists()
+    assert speed_matrix_path.exists()
+    assert blocked_matrix_path.exists()
+
+    matrix_df = pd.read_csv(speed_matrix_path, index_col=0)
+    assert matrix_df.shape == (2, 2)
+
+    heatmap_path = local_tmp_path / "results" / "plots" / "speed_heatmap_density_vs_pturn.png"
+    plot_turn_sweep_heatmap(speed_matrix_path, heatmap_path)
+    assert heatmap_path.exists()

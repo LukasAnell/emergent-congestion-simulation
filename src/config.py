@@ -34,6 +34,7 @@ class Config:
     save_time_series: bool = False
     time_series_densities: list[float] = field(default_factory=list)
     time_series_replication: int = 0
+    p_turn_values: list[float] = field(default_factory=list)
 
 
 def load_config(path: str | Path) -> Config:
@@ -63,6 +64,8 @@ def _apply_dict(config: Config, data: dict[str, Any]) -> None:
         elif key == "snapshot_densities":
             setattr(config, key, _coerce_floats(value))
         elif key == "time_series_densities":
+            setattr(config, key, _coerce_floats(value))
+        elif key == "p_turn_values":
             setattr(config, key, _coerce_floats(value))
         elif key == "p_turn":
             setattr(config, key, float(value))

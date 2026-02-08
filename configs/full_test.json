@@ -1,0 +1,24 @@
+{
+  "N": 50,
+  "densities": [
+    0.04, 0.08, 0.12, 0.16, 0.20, 0.24, 0.28, 0.32, 0.36, 0.40,
+    0.45, 0.50, 0.55, 0.60, 0.65, 0.70
+  ],
+  "burn_in_steps": 200,
+  "measurement_steps": 1500,
+  "replications": 10,
+  "seed_base": 123,
+
+  "p_turn": 0.2,
+  "p_turn_values": [0.0, 0.1, 0.2, 0.3, 0.4],
+
+  "output_dir": "results/full_test",
+
+  "save_snapshots": true,
+  "snapshot_densities": [0.08, 0.20, 0.40, 0.60],
+  "snapshot_step": "last",
+
+  "save_time_series": true,
+  "time_series_densities": [0.08, 0.20, 0.40, 0.60],
+  "time_series_replication": 0
+}
