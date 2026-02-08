@@ -35,6 +35,9 @@ python scripts/run_experiment.py --config configs/base.json
 - `results/analysis.json`
 - `results/plots/speed_vs_density.png`
 - `results/plots/blocked_vs_density.png`
+- `results/turn_sweep.csv` (optional)
+- `results/turn_sweep_speed_matrix.csv` (optional)
+- `results/plots/speed_heatmap_density_vs_pturn.png` (optional)
 
 ## Reproducibility
 
@@ -65,6 +68,15 @@ After each density sweep, the project estimates a critical density from the stee
 ## Extension: turning probability
 
 Optional behavior: set `p_turn` (0 to 1) to allow agents to randomly turn left or right before each move proposal. Use `--p-turn` on the CLI or set it in the config JSON.
+
+## Optional p_turn sweep heatmap
+
+Set `p_turn_values` in config (or `--p-turn-values` via CLI) to run a 2D sweep over
+`density x p_turn`.
+
+- `results/turn_sweep.csv`: long-form table with one row per `(p_turn, density)`
+- `results/turn_sweep_speed_matrix.csv`: matrix for heatmap generation
+- `results/plots/speed_heatmap_density_vs_pturn.png`: mean speed heatmap
 
 ## Optional snapshots
 
